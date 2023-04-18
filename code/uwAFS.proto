@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+option java_package = "io.grpc.examples";
+
+package uwAFS;
+
+service UWAFS {
+    rpc GetAttr (GetAttrReq) returns (GetAttrReply) {}
+    rpc MkDir(MkDirReq) returns (MkDirReply) {}
+    rpc RmDir(RmDirReq) returns (RmDirReply) {}
+    rpc ReadDir (ReadDirReq) returns (ReadDirReply) {}
+    rpc GetHash (GetHashReq) returns (GetHashReply) {}
+    rpc Read (ReadReq) returns (stream ReadReply) {}
+    rpc Write (stream WriteReq) returns (WriteReply) {}
+    rpc Rename (RenameReq) returns (RenameReply) {}
+    rpc Unlink (UnlinkReq) returns (UnlinkReply) {}
+    rpc Create (CreateReq) returns (CreateReply) {}
+}
+
+message Owner {
+    uint32 uid = 1;		/* user ID of owner */
+    uint32 gid = 2;		/* group ID of owner */
+}
+
+message Attr {
+    uint64     dev		= 1;    /* ID of device containing file */
+    uint64     ino		= 2;    /* inode number */
+    uint64     mode		= 3;    /* protection */
+    uint64     nlink 		= 4;   	/* number of hard links */
+    Owner      owner 		= 5;
+    uint64     rdev		= 6;    /* device ID (if special file) */
+    uint64     size		= 7;    /* total size, in bytes */
+    uint64     blksize 		= 8; 	/* blocksize for file system I/O */
+    uint64     blocks 		= 9;  	/* number of 512B blocks allocated */
+    uint64     atime 		= 10;   /* time of last access */
+    uint64     atimens		= 11;
+    uint64     mtime		= 12;   /* time of last modification */
+    uint64     mtimens		= 13;
+    uint64     ctime		= 14;   /* time of last status change */
+    uint64     ctimens		= 15;
+
+}
+
+message GetAttrReq {
+    string path = 1;
+}
+
+message GetAttrReply {
+    Attr  attr = 1; 
+    int32 err = 2;
+}
+
+message MkDirReply{
+    int32 err=1;
+}
+
+message MkDirReq{
+    string path=1;
+    int32 mode=2;
+}
+
+message RmDirReply{
+    int32 err=1;
+}
+
+message RmDirReq{
+    string path=1;
+}
+
+message DirEnt{
+    string name = 1;
+    uint64 inodeNum = 2;
+    uint64 mode = 3;
+}
+
+message ReadDirReq{
+    string path = 1;
+}
+
+message ReadDirReply {
+    int32 err = 1;
+    repeated DirEnt dirents = 2;
+}
+
+
+message GetHashReq {
+    string path = 1;
+}
+
+message GetHashReply {
+    int32 exists = 1;
+    int64 hash = 2;
+    int32 size = 3;
+}
+
+message ReadReq {
+    string path = 1;
+    int32 size = 2;
+    int32 offset = 3;
+}
+
+message ReadReply {
+    bytes buf = 1;
+    int32 size = 2;
+}
+
+message WriteReq {
+    string path = 1;
+    bytes buf = 2;
+    int32 size = 3;
+    int32 offset = 4;
+}
+
+message WriteReply {
+    int32 size = 1;
+    int64 new_hash = 2;
+}
+
+message RenameReq {
+    string old_path = 1;
+    string new_path = 2;
+}
+
+message RenameReply {
+    int32 err = 1;
+}
+
+message UnlinkReq {
+    string path = 1;
+}
+
+message UnlinkReply {
+    int32 err = 1;
+}
+
+message CreateReq {
+    string path = 1;
+    int32 mode = 2;
+    int32 dev = 3;
+}
+
+message CreateReply {
+    int32 err = 1;
+    int64 new_hash = 2;
+}
+
